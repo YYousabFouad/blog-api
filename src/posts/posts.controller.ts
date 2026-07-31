@@ -11,6 +11,8 @@ import {
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { Query } from '@nestjs/common';
+import { PaginationDto } from './dto/pagination.dto';
 
 @Controller('posts')
 export class PostsController {
@@ -20,10 +22,9 @@ export class PostsController {
   create(@Body() createPostDto: CreatePostDto) {
     return this.postsService.create(createPostDto);
   }
-
   @Get()
-  findAll() {
-    return this.postsService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.postsService.findAll(paginationDto);
   }
 
   @Get(':id')

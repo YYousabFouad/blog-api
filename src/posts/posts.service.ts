@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-
+import { PaginationDto } from './dto/pagination.dto';
 import { Post, PostDocument } from './schemas/post.schema';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -26,8 +26,12 @@ export class PostsService {
     return this.postModel.create(createPostDto);
   }
 
-  async findAll() {
-    return this.postModel.find().populate('author');
+  async findAll(paginationDto: PaginationDto) {
+    const { page, limit } = paginationDto;
+
+    const skip = (page - 1) * limit;
+
+    return this.postModel.find().populate('author').skip(skip).limit(limit);
   }
 
   async findOne(id: string) {
