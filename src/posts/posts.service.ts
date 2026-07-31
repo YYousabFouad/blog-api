@@ -31,16 +31,34 @@ export class PostsService {
   }
 
   async findOne(id: string) {
-    return this.postModel.findById(id).populate('author');
+    const post = await this.postModel.findById(id).populate('author');
+
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    return post;
   }
 
   async update(id: string, updatePostDto: UpdatePostDto) {
-    return this.postModel.findByIdAndUpdate(id, updatePostDto, {
+    const post = await this.postModel.findByIdAndUpdate(id, updatePostDto, {
       new: true,
     });
+
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    return post;
   }
 
   async remove(id: string) {
-    return this.postModel.findByIdAndDelete(id);
+    const post = await this.postModel.findByIdAndDelete(id);
+
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    return post;
   }
 }
