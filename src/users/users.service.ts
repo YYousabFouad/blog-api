@@ -40,4 +40,7 @@ export class UsersService {
   async remove(id: string) {
     return this.userModel.findByIdAndDelete(id);
   }
+  async exists(id: string) {
+    return this.userModel.findById(id);
+  }
 }
