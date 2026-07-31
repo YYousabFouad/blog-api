@@ -25,13 +25,28 @@ export class PostsService {
 
     return this.postModel.create(createPostDto);
   }
-
   async findAll(paginationDto: PaginationDto) {
-    const { page, limit } = paginationDto;
+    const { page, limit, search, sort } = paginationDto;
 
     const skip = (page - 1) * limit;
 
-    return this.postModel.find().populate('author').skip(skip).limit(limit);
+    const filter = search
+      ? {
+          title: {
+            $regex: search,
+            $options: 'i',
+          },
+        }
+      : {};
+
+    return this.postModel
+      .find(filter)
+      .populate('author')
+      .sort({
+        createdAt: sort === 'asc' ? 1 : -1,
+      })
+      .skip(skip)
+      .limit(limit);
   }
 
   async findOne(id: string) {
