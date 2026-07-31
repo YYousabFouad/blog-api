@@ -1,98 +1,327 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+<div align="center">
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# 🚀 Blog API
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+### RESTful Blog API built with NestJS & MongoDB
 
-## Description
+![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Mongoose](https://img.shields.io/badge/Mongoose-880000?style=for-the-badge&logo=mongoose&logoColor=white)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+A RESTful API for managing users and blog posts using **NestJS**, **MongoDB**, and **TypeScript**.
 
-## Project setup
+Developed as part of an **ITI Backend Development Task** with additional bonus features implemented beyond the core requirements.
 
-```bash
-$ npm install
+</div>
+
+---
+
+# 📑 Table of Contents
+
+- Overview
+- Features
+- Technologies
+- Project Structure
+- Database Design
+- API Endpoints
+- Bonus Features
+- Installation
+- Environment Variables
+- Running the Project
+- Future Improvements
+- Author
+
+---
+
+# 📖 Overview
+
+This project provides a complete Blog REST API where users can create blog posts and manage their data.
+
+The project demonstrates:
+
+- REST API Design
+- NestJS Modules
+- MongoDB Relationships
+- Validation
+- Password Hashing
+- CRUD Operations
+- Pagination
+- Searching
+- Sorting
+- File Upload
+
+---
+
+# ✨ Features
+
+## 👤 User Management
+
+- Create User
+- Get All Users
+- Get User By ID
+- Update User
+- Delete User
+
+### Validation
+
+- Email Validation
+- Required Fields Validation
+- DTO Validation
+- Global Validation Pipe
+
+### Security
+
+- Password Hashing using bcrypt
+- Duplicate Email Detection
+
+---
+
+## 📝 Post Management
+
+- Create Post
+- Get All Posts
+- Get Post By ID
+- Update Post
+- Delete Post
+
+### Relationships
+
+- One User ➜ Many Posts
+- MongoDB ObjectId Reference
+- Populate Author Information
+
+---
+
+## 🔄 Cascade Delete
+
+Deleting a user automatically deletes all posts created by that user.
+
+---
+
+# ⭐ Bonus Features
+
+- Pagination
+- Search by Title
+- Sorting
+- Image Upload using Multer
+
+---
+
+# 🛠️ Technologies
+
+| Technology | Purpose |
+|------------|---------|
+| NestJS | Backend Framework |
+| TypeScript | Programming Language |
+| MongoDB | Database |
+| Mongoose | ODM |
+| bcrypt | Password Hashing |
+| class-validator | Validation |
+| class-transformer | DTO Transformation |
+| Multer | File Upload |
+
+---
+
+# 📂 Project Structure
+
+```text
+src
+│
+├── users
+│   ├── dto
+│   ├── schemas
+│   ├── users.controller.ts
+│   ├── users.service.ts
+│   └── users.module.ts
+│
+├── posts
+│   ├── dto
+│   ├── schemas
+│   ├── posts.controller.ts
+│   ├── posts.service.ts
+│   └── posts.module.ts
+│
+├── app.module.ts
+└── main.ts
 ```
 
-## Compile and run the project
+---
 
-```bash
-# development
-$ npm run start
+# 🗄️ Database Design
 
-# watch mode
-$ npm run start:dev
+## User
 
-# production mode
-$ npm run start:prod
+```ts
+{
+  name: string;
+  email: string;
+  password: string;
+  age: number;
+  image: string;
+}
 ```
 
-## Run tests
+---
 
-```bash
-# unit tests
-$ npm run test
+## Post
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+```ts
+{
+  title: string;
+  content: string;
+  image: string;
+  author: ObjectId;
+}
 ```
 
-## Deployment
+---
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+# 📡 API Endpoints
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## Users
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| POST | `/users` | Create User |
+| GET | `/users` | Get All Users |
+| GET | `/users/:id` | Get User |
+| PATCH | `/users/:id` | Update User |
+| DELETE | `/users/:id` | Delete User |
+
+---
+
+## Posts
+
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| POST | `/posts` | Create Post |
+| GET | `/posts` | Get All Posts |
+| GET | `/posts/:id` | Get Post |
+| PATCH | `/posts/:id` | Update Post |
+| DELETE | `/posts/:id` | Delete Post |
+
+---
+
+# ⭐ Query Parameters
+
+## Pagination
+
+```http
+GET /posts?page=1&limit=10
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+---
 
-## Resources
+## Search
 
-Check out a few resources that may come in handy when working with NestJS:
+```http
+GET /posts?search=nestjs
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+---
 
-## Support
+## Sort
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Ascending
 
-## Stay in touch
+```http
+GET /posts?sort=asc
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Descending
 
-## License
+```http
+GET /posts?sort=desc
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Combined Example
+
+```http
+GET /posts?page=2&limit=5&search=nestjs&sort=desc
+```
+
+---
+
+# ⚙️ Installation
+
+Clone Repository
+
+```bash
+git clone https://github.com/YYousabFouad/blog-api.git
+```
+
+Go to Project
+
+```bash
+cd blog-api
+```
+
+Install Packages
+
+```bash
+npm install
+```
+
+---
+
+# 🔐 Environment Variables
+
+Create a `.env` file.
+
+```env
+PORT=3000
+MONGO_URI=mongodb://localhost:27017/blog-api
+```
+
+---
+
+# ▶️ Running the Project
+
+Development
+
+```bash
+npm run start:dev
+```
+
+Production
+
+```bash
+npm run start
+```
+
+---
+
+# 📌 Future Improvements
+
+- JWT Authentication
+- Login & Register
+- Role-Based Authorization
+- Swagger API Documentation
+- Docker Support
+- Unit Testing
+- Global Exception Filters
+- Logging
+- Repository Pattern
+- Refresh Tokens
+
+---
+
+# 🎓 Academic Context
+
+This project was originally developed as part of an **ITI (Information Technology Institute) Backend Development Task**.
+
+In addition to the required specifications, several optional enhancements (bonus features) were implemented to improve functionality and demonstrate practical backend development skills.
+
+---
+
+# 👨‍💻 Author
+
+**Yosab Fouad**
+
+Backend Developer
+
+GitHub:
+**https://github.com/YYousabFouad**
+
