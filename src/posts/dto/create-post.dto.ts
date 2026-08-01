@@ -1,5 +1,4 @@
 import { IsMongoId, IsOptional, IsString } from 'class-validator';
-
 export class CreatePostDto {
   @IsString()
   title!: string;
@@ -13,4 +12,7 @@ export class CreatePostDto {
 
   @IsMongoId()
   author!: string;
+
+  @IsMongoId()
+  group!: string;
 }
