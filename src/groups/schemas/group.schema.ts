@@ -12,14 +12,27 @@ export class Group {
   })
   name!: string;
 
-  @Prop()
+  @Prop({
+    default: '',
+  })
   description!: string;
 
   @Prop({
-    type: Types.ObjectId,
-    ref: 'User',
+    type: [{ type: Types.ObjectId, ref: 'User' }],
+    default: [],
   })
-  owner!: Types.ObjectId;
+  admins!: Types.ObjectId[];
+
+  @Prop({
+    type: [{ type: Types.ObjectId, ref: 'User' }],
+    default: [],
+  })
+  members!: Types.ObjectId[];
+
+  @Prop({
+    default: 'private',
+  })
+  permissions!: string;
 }
 
 export const GroupSchema = SchemaFactory.createForClass(Group);
