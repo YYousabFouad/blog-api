@@ -1,13 +1,23 @@
-import { IsMongoId, IsNotEmpty, IsString } from 'class-validator';
+import { IsArray, IsOptional, IsString, ArrayUnique } from 'class-validator';
 
 export class CreateGroupDto {
   @IsString()
-  @IsNotEmpty()
   name!: string;
 
   @IsString()
   description!: string;
 
-  @IsMongoId()
-  owner!: string;
+  @IsOptional()
+  @IsArray()
+  @ArrayUnique()
+  admins?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @ArrayUnique()
+  members?: string[];
+
+  @IsOptional()
+  @IsString()
+  permissions?: string;
 }
