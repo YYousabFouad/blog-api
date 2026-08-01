@@ -48,7 +48,15 @@ export class PostsService {
       .skip(skip)
       .limit(limit);
   }
-
+  async findUserPosts(userId: string) {
+    return this.postModel
+      .find({ author: userId })
+      .populate('author')
+      .populate('group')
+      .sort({
+        createdAt: -1,
+      });
+  }
   async findOne(id: string) {
     const post = await this.postModel.findById(id).populate('author');
 
