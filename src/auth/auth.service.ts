@@ -20,4 +20,26 @@ export class AuthService {
       password: registerDto.password,
     });
   }
+  async login(loginDto: LoginDto) {
+    const user = await this.usersService.findByEmail(loginDto.email);
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    const isMatch = await bcrypt.compare(loginDto.password, user.password);
+
+    if (!isMatch) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    const payload = {
+      sub: user._id,
+      email: user.email,
+    };
+
+    return {
+      accessToken: this.jwtService.sign(payload),
+    };
+  }
 }
