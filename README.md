@@ -10,7 +10,6 @@
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 ![Mongoose](https://img.shields.io/badge/Mongoose-880000?style=for-the-badge&logo=mongoose&logoColor=white)
 ![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=jsonwebtokens)
-![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 
 A complete RESTful Blog API built with **NestJS**, **MongoDB**, **Mongoose**, and **TypeScript**.
 
