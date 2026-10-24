@@ -7,6 +7,10 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { UsersService } from '../users/users.service';
 
+function escapeRegex(text: string): string {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+}
+
 @Injectable()
 export class PostsService {
   constructor(
@@ -16,15 +20,21 @@ export class PostsService {
     private readonly usersService: UsersService,
   ) {}
 
-  async create(createPostDto: CreatePostDto) {
-    const user = await this.usersService.exists(createPostDto.author);
+  async create(authorId: string, createPostDto: CreatePostDto) {
+    const userExists = await this.usersService.exists(authorId);
 
-    if (!user) {
+    if (!userExists) {
       throw new NotFoundException('User not found');
     }
 
-    return this.postModel.create(createPostDto);
+    const postData = {
+      ...createPostDto,
+      author: authorId,
+    };
+
+    return this.postModel.create(postData);
   }
+
   async findAll(paginationDto: PaginationDto) {
     const { page, limit, search, sort } = paginationDto;
 
@@ -33,32 +43,52 @@ export class PostsService {
     const filter = search
       ? {
           title: {
-            $regex: search,
+            $regex: escapeRegex(search),
             $options: 'i',
           },
         }
       : {};
 
-    return this.postModel
-      .find(filter)
-      .populate('author')
-      .sort({
-        createdAt: sort === 'asc' ? 1 : -1,
-      })
-      .skip(skip)
-      .limit(limit);
+    const [data, total] = await Promise.all([
+      this.postModel
+        .find(filter)
+        .populate('author', 'name email image role')
+        .populate('group', 'name description')
+        .sort({
+          createdAt: sort === 'asc' ? 1 : -1,
+        })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      this.postModel.countDocuments(filter),
+    ]);
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
+
   async findUserPosts(userId: string) {
     return this.postModel
       .find({ author: userId })
-      .populate('author')
-      .populate('group')
+      .populate('author', 'name email image role')
+      .populate('group', 'name description')
       .sort({
         createdAt: -1,
-      });
+      })
+      .lean();
   }
+
   async findOne(id: string) {
-    const post = await this.postModel.findById(id).populate('author');
+    const post = await this.postModel
+      .findById(id)
+      .populate('author', 'name email image role')
+      .populate('group', 'name description')
+      .lean();
 
     if (!post) {
       throw new NotFoundException('Post not found');
@@ -68,9 +98,13 @@ export class PostsService {
   }
 
   async update(id: string, updatePostDto: UpdatePostDto) {
-    const post = await this.postModel.findByIdAndUpdate(id, updatePostDto, {
-      new: true,
-    });
+    const post = await this.postModel
+      .findByIdAndUpdate(id, updatePostDto, {
+        new: true,
+      })
+      .populate('author', 'name email image role')
+      .populate('group', 'name description')
+      .lean();
 
     if (!post) {
       throw new NotFoundException('Post not found');
@@ -80,7 +114,11 @@ export class PostsService {
   }
 
   async remove(id: string) {
-    const post = await this.postModel.findByIdAndDelete(id);
+    const post = await this.postModel
+      .findByIdAndDelete(id)
+      .populate('author', 'name email image role')
+      .populate('group', 'name description')
+      .lean();
 
     if (!post) {
       throw new NotFoundException('Post not found');

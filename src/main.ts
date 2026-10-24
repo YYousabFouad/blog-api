@@ -1,22 +1,41 @@
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import helmet from 'helmet';
+import { join } from 'path';
+
+import { AppModule } from './app.module';
+
 async function bootstrap() {
+  const logger = new Logger('Bootstrap');
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  app.useStaticAssets(join(__dirname, '..', 'uploads'));
+  app.use(helmet());
+  app.enableCors();
+  app.enableShutdownHooks();
+
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads/',
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
     }),
   );
 
-  await app.listen(process.env.PORT ?? 3000);
+  const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+  await app.listen(port);
+  logger.log(`Application is running on port ${port}`);
 }
 
-bootstrap();
+void bootstrap().catch((err: unknown) => {
+  const logger = new Logger('Bootstrap');
+  logger.error('Failed to start application', err);
+  process.exit(1);
+});

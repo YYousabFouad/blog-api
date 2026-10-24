@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { Group } from '../../groups/schemas/group.schema';
+
 export type PostDocument = HydratedDocument<Post>;
 
 @Schema({
@@ -9,6 +10,7 @@ export type PostDocument = HydratedDocument<Post>;
 export class Post {
   @Prop({
     required: true,
+    trim: true,
   })
   title!: string;
 
@@ -18,19 +20,26 @@ export class Post {
   content!: string;
 
   @Prop()
-  image!: string;
+  image?: string;
 
   @Prop({
     type: Types.ObjectId,
     ref: 'User',
     required: true,
+    index: true,
   })
   author!: Types.ObjectId;
+
   @Prop({
     type: Types.ObjectId,
     ref: Group.name,
+    index: true,
   })
-  group!: Types.ObjectId;
+  group?: Types.ObjectId;
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);
+
+PostSchema.index({ author: 1, createdAt: -1 });
+PostSchema.index({ createdAt: -1 });
+PostSchema.index({ group: 1 });

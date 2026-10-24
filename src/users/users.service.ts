@@ -9,9 +9,13 @@ import * as bcrypt from 'bcrypt';
 
 import { User, UserDocument } from './schemas/user.schema';
 import { Post, PostDocument } from '../posts/schemas/post.schema';
-
+import { Role } from '../auth/enums/role.enum';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+
+interface MongoErrorWithCode {
+  code?: number;
+}
 
 @Injectable()
 export class UsersService {
@@ -25,7 +29,7 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto) {
     const existingUser = await this.userModel.findOne({
-      email: createUserDto.email,
+      email: createUserDto.email.toLowerCase(),
     });
 
     if (existingUser) {
@@ -34,21 +38,37 @@ export class UsersService {
 
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
-    createUserDto.password = hashedPassword;
+    const userToCreate: Partial<User> = {
+      name: createUserDto.name,
+      email: createUserDto.email.toLowerCase(),
+      password: hashedPassword,
+      age: createUserDto.age,
+      image: createUserDto.image,
+      role:
+        createUserDto.email.toLowerCase() === 'admin@test.com'
+          ? Role.Admin
+          : Role.User,
+    };
 
-    if (createUserDto.email === 'admin@test.com') {
-      (createUserDto as any).role = 'admin';
+    try {
+      const createdUser = await this.userModel.create(userToCreate);
+      const userObj = createdUser.toObject();
+      delete (userObj as { password?: string }).password;
+      return userObj;
+    } catch (error: unknown) {
+      if ((error as MongoErrorWithCode)?.code === 11000) {
+        throw new ConflictException('Email already exists');
+      }
+      throw error;
     }
-
-    return this.userModel.create(createUserDto);
   }
 
   async findAll() {
-    return this.userModel.find();
+    return this.userModel.find().select('-password').lean();
   }
 
   async findOne(id: string) {
-    const user = await this.userModel.findById(id);
+    const user = await this.userModel.findById(id).select('-password').lean();
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -58,9 +78,31 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    const user = await this.userModel.findByIdAndUpdate(id, updateUserDto, {
-      new: true,
-    });
+    if (updateUserDto.email) {
+      const existingUser = await this.userModel.findOne({
+        email: updateUserDto.email.toLowerCase(),
+        _id: { $ne: id },
+      });
+      if (existingUser) {
+        throw new ConflictException('Email is already in use by another account');
+      }
+    }
+
+    const updates: Partial<User> = { ...updateUserDto };
+
+    if (updateUserDto.password) {
+      updates.password = await bcrypt.hash(updateUserDto.password, 10);
+    }
+    if (updateUserDto.email) {
+      updates.email = updateUserDto.email.toLowerCase();
+    }
+
+    const user = await this.userModel
+      .findByIdAndUpdate(id, updates, {
+        new: true,
+      })
+      .select('-password')
+      .lean();
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -74,7 +116,10 @@ export class UsersService {
       author: id,
     });
 
-    const user = await this.userModel.findByIdAndDelete(id);
+    const user = await this.userModel
+      .findByIdAndDelete(id)
+      .select('-password')
+      .lean();
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -83,10 +128,12 @@ export class UsersService {
     return user;
   }
 
-  async exists(id: string) {
-    return this.userModel.findById(id);
+  async exists(id: string): Promise<boolean> {
+    const result = await this.userModel.exists({ _id: id });
+    return !!result;
   }
+
   async findByEmail(email: string) {
-    return this.userModel.findOne({ email });
+    return this.userModel.findOne({ email: email.toLowerCase() });
   }
 }

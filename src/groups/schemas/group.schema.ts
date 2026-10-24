@@ -9,11 +9,14 @@ export type GroupDocument = HydratedDocument<Group>;
 export class Group {
   @Prop({
     required: true,
+    trim: true,
+    index: true,
   })
   name!: string;
 
   @Prop({
     default: '',
+    trim: true,
   })
   description!: string;
 
@@ -31,6 +34,7 @@ export class Group {
 
   @Prop({
     default: 'private',
+    trim: true,
   })
   permissions!: string;
 }

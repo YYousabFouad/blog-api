@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -13,25 +13,59 @@ export class GroupsService {
     private readonly groupModel: Model<GroupDocument>,
   ) {}
 
-  create(createGroupDto: CreateGroupDto) {
+  async create(createGroupDto: CreateGroupDto) {
     return this.groupModel.create(createGroupDto);
   }
 
-  findAll() {
-    return this.groupModel.find().populate('owner');
+  async findAll() {
+    return this.groupModel
+      .find()
+      .populate('admins', 'name email image role')
+      .populate('members', 'name email image role')
+      .lean();
   }
 
-  findOne(id: string) {
-    return this.groupModel.findById(id).populate('owner');
+  async findOne(id: string) {
+    const group = await this.groupModel
+      .findById(id)
+      .populate('admins', 'name email image role')
+      .populate('members', 'name email image role')
+      .lean();
+
+    if (!group) {
+      throw new NotFoundException('Group not found');
+    }
+
+    return group;
   }
 
-  update(id: string, updateGroupDto: UpdateGroupDto) {
-    return this.groupModel.findByIdAndUpdate(id, updateGroupDto, {
-      new: true,
-    });
+  async update(id: string, updateGroupDto: UpdateGroupDto) {
+    const group = await this.groupModel
+      .findByIdAndUpdate(id, updateGroupDto, {
+        new: true,
+      })
+      .populate('admins', 'name email image role')
+      .populate('members', 'name email image role')
+      .lean();
+
+    if (!group) {
+      throw new NotFoundException('Group not found');
+    }
+
+    return group;
   }
 
-  remove(id: string) {
-    return this.groupModel.findByIdAndDelete(id);
+  async remove(id: string) {
+    const group = await this.groupModel
+      .findByIdAndDelete(id)
+      .populate('admins', 'name email image role')
+      .populate('members', 'name email image role')
+      .lean();
+
+    if (!group) {
+      throw new NotFoundException('Group not found');
+    }
+
+    return group;
   }
 }

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { AppController } from './app.controller';
@@ -15,14 +15,19 @@ import { GroupsModule } from './groups/groups.module';
       isGlobal: true,
     }),
 
-    MongooseModule.forRoot(process.env.MONGO_URI!),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        uri:
+          configService.get<string>('MONGO_URI') ||
+          'mongodb://localhost:27017/blog-api',
+      }),
+      inject: [ConfigService],
+    }),
 
     UsersModule,
-
     PostsModule,
-
     AuthModule,
-
     GroupsModule,
   ],
   controllers: [AppController],
