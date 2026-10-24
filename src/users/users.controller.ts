@@ -28,7 +28,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/enums/role.enum';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { AuthenticatedUser } from '../auth/interfaces/jwt-payload.interface';
+import type { AuthenticatedUser } from '../auth/interfaces/jwt-payload.interface';
 
 @Controller('users')
 export class UsersController {

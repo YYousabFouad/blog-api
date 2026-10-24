@@ -84,7 +84,9 @@ export class UsersService {
         _id: { $ne: id },
       });
       if (existingUser) {
-        throw new ConflictException('Email is already in use by another account');
+        throw new ConflictException(
+          'Email is already in use by another account',
+        );
       }
     }
 

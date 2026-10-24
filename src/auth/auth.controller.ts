@@ -5,7 +5,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
-import { AuthenticatedUser } from './interfaces/jwt-payload.interface';
+import type { AuthenticatedUser } from './interfaces/jwt-payload.interface';
 
 @Controller('auth')
 export class AuthController {

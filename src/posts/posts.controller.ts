@@ -17,9 +17,37 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { AuthenticatedUser } from '../auth/interfaces/jwt-payload.interface';
+import type { AuthenticatedUser } from '../auth/interfaces/jwt-payload.interface';
 import { Role } from '../auth/enums/role.enum';
 import { ParseObjectIdPipe } from '../common/pipes/parse-object-id.pipe';
+
+function extractAuthorId(author: unknown): string {
+  if (!author) {
+    return '';
+  }
+  if (typeof author === 'string') {
+    return author;
+  }
+  if (typeof author === 'object' && author !== null) {
+    if ('_id' in author) {
+      const id = (author as { _id?: { toString(): string } | string })._id;
+      if (typeof id === 'string') {
+        return id;
+      }
+      if (id && typeof id.toString === 'function') {
+        return id.toString();
+      }
+    }
+    const hasToString = author as { toString?: () => string };
+    if (
+      typeof hasToString.toString === 'function' &&
+      hasToString.toString !== Object.prototype.toString
+    ) {
+      return hasToString.toString();
+    }
+  }
+  return '';
+}
 
 @Controller('posts')
 export class PostsController {
@@ -57,10 +85,7 @@ export class PostsController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     const existing = await this.postsService.findOne(id);
-    const authorId =
-      typeof existing.author === 'object' && existing.author !== null
-        ? ((existing.author as { _id?: unknown })._id ?? existing.author).toString()
-        : String(existing.author);
+    const authorId = extractAuthorId(existing.author);
 
     if (
       authorId !== user.userId &&
@@ -80,10 +105,7 @@ export class PostsController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     const existing = await this.postsService.findOne(id);
-    const authorId =
-      typeof existing.author === 'object' && existing.author !== null
-        ? ((existing.author as { _id?: unknown })._id ?? existing.author).toString()
-        : String(existing.author);
+    const authorId = extractAuthorId(existing.author);
 
     if (
       authorId !== user.userId &&
