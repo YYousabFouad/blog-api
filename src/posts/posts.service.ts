@@ -52,7 +52,7 @@ export class PostsService {
     const [data, total] = await Promise.all([
       this.postModel
         .find(filter)
-        .populate('author', 'name email image role')
+        .populate('author', 'name image')
         .populate('group', 'name description')
         .sort({
           createdAt: sort === 'asc' ? 1 : -1,
@@ -75,7 +75,7 @@ export class PostsService {
   async findUserPosts(userId: string) {
     return this.postModel
       .find({ author: userId })
-      .populate('author', 'name email image role')
+      .populate('author', 'name image')
       .populate('group', 'name description')
       .sort({
         createdAt: -1,
@@ -86,7 +86,7 @@ export class PostsService {
   async findOne(id: string) {
     const post = await this.postModel
       .findById(id)
-      .populate('author', 'name email image role')
+      .populate('author', 'name image')
       .populate('group', 'name description')
       .lean();
 
@@ -102,7 +102,7 @@ export class PostsService {
       .findByIdAndUpdate(id, updatePostDto, {
         new: true,
       })
-      .populate('author', 'name email image role')
+      .populate('author', 'name image')
       .populate('group', 'name description')
       .lean();
 
@@ -116,7 +116,7 @@ export class PostsService {
   async remove(id: string) {
     const post = await this.postModel
       .findByIdAndDelete(id)
-      .populate('author', 'name email image role')
+      .populate('author', 'name image')
       .populate('group', 'name description')
       .lean();
 

@@ -6,6 +6,7 @@ import {
   AuthenticatedUser,
   JwtPayload,
 } from '../interfaces/jwt-payload.interface';
+import { getJwtSecret } from '../jwt-secret';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -13,10 +14,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>(
-        'JWT_SECRET',
-        'ITI_SECRET_KEY_FALLBACK_DEV',
-      ),
+      secretOrKey: getJwtSecret(configService),
     });
   }
 

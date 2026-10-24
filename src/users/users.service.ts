@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -36,7 +37,8 @@ export class UsersService {
       throw new ConflictException('Email already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    this.validatePasswordLength(createUserDto.password);
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 12);
 
     const userToCreate: Partial<User> = {
       name: createUserDto.name,
@@ -44,10 +46,7 @@ export class UsersService {
       password: hashedPassword,
       age: createUserDto.age,
       image: createUserDto.image,
-      role:
-        createUserDto.email.toLowerCase() === 'admin@test.com'
-          ? Role.Admin
-          : Role.User,
+      role: Role.User,
     };
 
     try {
@@ -93,7 +92,8 @@ export class UsersService {
     const updates: Partial<User> = { ...updateUserDto };
 
     if (updateUserDto.password) {
-      updates.password = await bcrypt.hash(updateUserDto.password, 10);
+      this.validatePasswordLength(updateUserDto.password);
+      updates.password = await bcrypt.hash(updateUserDto.password, 12);
     }
     if (updateUserDto.email) {
       updates.email = updateUserDto.email.toLowerCase();
@@ -137,5 +137,14 @@ export class UsersService {
 
   async findByEmail(email: string) {
     return this.userModel.findOne({ email: email.toLowerCase() });
+  }
+
+  private validatePasswordLength(password: string): void {
+    const length = Buffer.byteLength(password, 'utf8');
+    if (length < 8 || length > 72) {
+      throw new BadRequestException(
+        'Password must be between 8 and 72 bytes when encoded as UTF-8',
+      );
+    }
   }
 }

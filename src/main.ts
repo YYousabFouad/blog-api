@@ -11,7 +11,11 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.use(helmet());
-  app.enableCors();
+  const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  app.enableCors({ origin: allowedOrigins });
   app.enableShutdownHooks();
 
   app.useStaticAssets(join(__dirname, '..', 'uploads'), {

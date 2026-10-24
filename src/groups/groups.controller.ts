@@ -22,7 +22,8 @@ import { ParseObjectIdPipe } from '../common/pipes/parse-object-id.pipe';
 export class GroupsController {
   constructor(private readonly groupsService: GroupsService) {}
 
-  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin, Role.SuperAdmin)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post()
   create(@Body() createGroupDto: CreateGroupDto) {
     return this.groupsService.create(createGroupDto);
@@ -38,7 +39,8 @@ export class GroupsController {
     return this.groupsService.findOne(id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin, Role.SuperAdmin)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Patch(':id')
   update(
     @Param('id', ParseObjectIdPipe) id: string,

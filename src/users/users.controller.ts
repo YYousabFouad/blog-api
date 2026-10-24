@@ -39,7 +39,8 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin, Role.SuperAdmin)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
   findAll() {
     return this.usersService.findAll();
@@ -47,7 +48,11 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Post('upload')
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(
+    FileInterceptor('image', {
+      limits: { fileSize: 5 * 1024 * 1024, files: 1 },
+    }),
+  )
   async uploadFile(
     @UploadedFile(
       new ParseFilePipe({
@@ -76,16 +81,24 @@ export class UsersController {
         url: response.url,
         fileId: response.fileId,
       };
-    } catch (err: unknown) {
-      throw new BadRequestException(
-        `Failed to upload image: ${err instanceof Error ? err.message : 'Unknown error'}`,
-      );
+    } catch {
+      throw new BadRequestException('Failed to upload image');
     }
   }
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  findOne(@Param('id', ParseObjectIdPipe) id: string) {
+  findOne(
+    @Param('id', ParseObjectIdPipe) id: string,
+    @CurrentUser() currentUser: AuthenticatedUser,
+  ) {
+    if (
+      currentUser.userId !== id &&
+      currentUser.role !== Role.Admin &&
+      currentUser.role !== Role.SuperAdmin
+    ) {
+      throw new ForbiddenException('You can only view your own profile');
+    }
     return this.usersService.findOne(id);
   }
 

@@ -8,6 +8,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { RolesGuard } from './guards/roles.guard';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { getJwtSecret } from './jwt-secret';
 
 @Module({
   imports: [
@@ -16,10 +17,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>(
-          'JWT_SECRET',
-          'ITI_SECRET_KEY_FALLBACK_DEV',
-        ),
+        secret: getJwtSecret(configService),
         signOptions: {
           expiresIn: '1d',
         },

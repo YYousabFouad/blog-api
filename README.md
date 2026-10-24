@@ -363,7 +363,8 @@ PORT=3000
 
 MONGO_URI=mongodb://localhost:27017/blog-api
 
-JWT_SECRET=ITI_SECRET_KEY
+JWT_SECRET=replace_with_a_random_secret_at_least_32_bytes_long
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
 
 IMAGEKIT_PUBLIC_KEY=
 
@@ -371,6 +372,11 @@ IMAGEKIT_PRIVATE_KEY=
 
 IMAGEKIT_URL_ENDPOINT=
 ```
+
+Generate a unique JWT secret with `openssl rand -hex 32`. The application refuses
+to start when `JWT_SECRET` is missing or shorter than 32 bytes. Configure
+`ALLOWED_ORIGINS` as a comma-separated list of the exact browser origins that
+should be allowed to call the API.
 
 ---
 

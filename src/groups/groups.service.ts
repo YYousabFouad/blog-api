@@ -20,16 +20,16 @@ export class GroupsService {
   async findAll() {
     return this.groupModel
       .find()
-      .populate('admins', 'name email image role')
-      .populate('members', 'name email image role')
+      .populate('admins', 'name image')
+      .populate('members', 'name image')
       .lean();
   }
 
   async findOne(id: string) {
     const group = await this.groupModel
       .findById(id)
-      .populate('admins', 'name email image role')
-      .populate('members', 'name email image role')
+      .populate('admins', 'name image')
+      .populate('members', 'name image')
       .lean();
 
     if (!group) {
@@ -44,8 +44,8 @@ export class GroupsService {
       .findByIdAndUpdate(id, updateGroupDto, {
         new: true,
       })
-      .populate('admins', 'name email image role')
-      .populate('members', 'name email image role')
+      .populate('admins', 'name image')
+      .populate('members', 'name image')
       .lean();
 
     if (!group) {
@@ -58,8 +58,8 @@ export class GroupsService {
   async remove(id: string) {
     const group = await this.groupModel
       .findByIdAndDelete(id)
-      .populate('admins', 'name email image role')
-      .populate('members', 'name email image role')
+      .populate('admins', 'name image')
+      .populate('members', 'name image')
       .lean();
 
     if (!group) {
